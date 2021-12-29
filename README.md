@@ -18,35 +18,9 @@ import "github.com/gin-gonic/gin"
 
 ### Example
 
-Assume the following code in `main.go`
+Check the example code in [example/main.go](./example/main.go)
 
-```go
-package main
-
-import (
-  "log"
-  "net/http"
-
-  "github.com/gin-gonic/gin"
-  ginlogger "github.com/r04922101/gin-logrus-stackdriver"
-)
-
-func main() {
-  r := gin.New()
-  r.Use(ginlogger.NewLogger())
-
-  r.POST("/ping", func(c *gin.Context) {
-    c.String(http.StatusOK, "pong")
-  })
-
-  if err := r.Run(); err != nil {
-    log.Fatalf("failed to run gin: %v", err)
-  }
-}
-
-```
-
-Run `main.go`
+Run `example/main.go`
 
 ```sh
 go run main.go
@@ -65,5 +39,11 @@ curl -X POST 'localhost:8080/ping' \
 Check your console, and see the gin log is in stackdriver format
 
 ```sh
-{"message":"2021/12/28 17:35:01.467 - ::1 curl/7.64.1, req: \"HTTP/1.1    POST /ping pang\", res: \"200\", latency: 26.403µs","severity":"INFO","timestamp":{"seconds":1640684101,"nanos":467857000}}
+{"message":"2021/12/29 14:20:09.428 - ::1 PostmanRuntime/7.26.8, req: \"HTTP/1.1    POST /ping pang\", res: \"200\", latency: 107.049µs","severity":"INFO","timestamp":{"seconds":1640758809,"nanos":428314000}}
 ```
+
+## Customize Formatter
+
+Refer to [Gin Custom Log Format](https://github.com/gin-gonic/gin#custom-log-format), write your custom formatter function. \
+Construct a `LoggerConfig` with the formatter and pass it to `NewLoggerWithConfig` function. \
+You can also find a example snippet of custom formatter in [example/main.go](./example/main.go)`.
