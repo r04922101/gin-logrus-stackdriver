@@ -11,6 +11,14 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+var defaultLogger *logrus.Logger
+
+func init() {
+	defaultLogger = logrus.New()
+	// Apply stackdriver format to logrus logger
+	defaultLogger.SetFormatter(joonix.NewFormatter())
+}
+
 const (
 	timeFormat = "2006/01/02 15:04:05.000"
 )
@@ -40,6 +48,9 @@ var defaultLogFormatter = func(param gin.LogFormatterParams) string {
 
 // LoggerConfig defines the config for Logger middleware
 type LoggerConfig struct {
+	// Logger is a logrus logger
+	Logger *logrus.Logger
+
 	// Optional. Default value is defaultLogFormatter
 	Formatter gin.LogFormatter
 
@@ -55,8 +66,10 @@ func NewLogger() gin.HandlerFunc {
 
 // NewLoggerWithConfig instance a Logger middleware with config.
 func NewLoggerWithConfig(conf LoggerConfig) func(c *gin.Context) {
-	logger := logrus.New()
-	logger.SetFormatter(joonix.NewFormatter())
+	logger := conf.Logger
+	if logger == nil {
+		logger = defaultLogger
+	}
 
 	var skip map[string]bool
 	if length := len(conf.SkipPaths); length > 0 {

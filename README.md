@@ -13,7 +13,7 @@ go get -u github.com/r04922101/gin-logrus-stackdriver
 ### Import it in your code
 
 ```go
-import "github.com/gin-gonic/gin"
+import ginlogger "github.com/r04922101/gin-logrus-stackdriver"
 ```
 
 ### Example
@@ -46,4 +46,8 @@ Check your console, and see the gin log is in stackdriver format
 
 Refer to [Gin Custom Log Format](https://github.com/gin-gonic/gin#custom-log-format), write your custom formatter function. \
 Construct a `LoggerConfig` with the formatter and pass it to `NewLoggerWithConfig` function. \
-You can also find a example snippet of custom formatter in [example/main.go](./example/main.go)`.
+You can also find a example snippet of custom formatter in [example/main.go](./example/main.go).
+
+## Customize Logger
+
+If you want to use your own `logrus.Logger` instance instead of default logger in stackdriver format, just pass your logger to `LoggerConfig`.
