@@ -28,8 +28,7 @@ var defaultLogFormatter = func(param gin.LogFormatterParams) string {
 	protocol := param.Request.Proto
 	ua := param.Request.UserAgent()
 	var bodyString string
-	body, err := ioutil.ReadAll(param.Request.Body)
-	if err == nil {
+	if body, err := ioutil.ReadAll(param.Request.Body); err == nil {
 		bodyString = string(body)
 	}
 
@@ -101,7 +100,7 @@ func NewLoggerWithConfig(conf LoggerConfig) func(c *gin.Context) {
 
 		// Stop timer
 		param.TimeStamp = time.Now()
-		param.Latency = param.TimeStamp.Sub(start)
+		param.Latency = time.Since(start)
 
 		// Get request info
 		param.ClientIP = c.ClientIP()
