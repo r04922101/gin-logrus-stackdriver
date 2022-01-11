@@ -1,7 +1,9 @@
 package ginlogger
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -85,6 +87,13 @@ func NewLoggerWithConfig(conf LoggerConfig) func(c *gin.Context) {
 		path := c.Request.URL.Path
 		rawQuery := c.Request.URL.RawQuery
 
+		// clone a body reader
+		var bodyReader io.ReadCloser
+		if body, err := ioutil.ReadAll(c.Request.Body); err == nil {
+			bodyReader = ioutil.NopCloser(bytes.NewReader(body))
+			c.Request.Body = ioutil.NopCloser(bytes.NewReader(body))
+		}
+
 		// Process request
 		c.Next()
 
@@ -93,6 +102,8 @@ func NewLoggerWithConfig(conf LoggerConfig) func(c *gin.Context) {
 			return
 		}
 
+		// set body reader to the clone reader to read body again
+		c.Request.Body = bodyReader
 		param := gin.LogFormatterParams{
 			Request: c.Request,
 			Keys:    c.Keys,
@@ -105,16 +116,17 @@ func NewLoggerWithConfig(conf LoggerConfig) func(c *gin.Context) {
 		// Get request info
 		param.ClientIP = c.ClientIP()
 		param.Method = c.Request.Method
-		param.StatusCode = c.Writer.Status()
-		param.ErrorMessage = c.Errors.ByType(gin.ErrorTypePrivate).String()
-		if rawQuery != "" {
-			path = path + "?" + rawQuery
-		}
 		param.Path = path
 
 		// Get response info
 		param.StatusCode = c.Writer.Status()
 		param.BodySize = c.Writer.Size()
+
+		// Get error info
+		param.ErrorMessage = c.Errors.ByType(gin.ErrorTypePrivate).String()
+		if rawQuery != "" {
+			path = path + "?" + rawQuery
+		}
 
 		// If no formatter assigned, use default formatter
 		formatter := conf.Formatter

@@ -25,6 +25,11 @@ func customLog(param gin.LogFormatterParams) string {
 	)
 }
 
+// Req defines a data structure for client request
+type Req struct {
+	Value int `json:"value"`
+}
+
 func main() {
 	r := gin.New()
 	r.Use(ginlogger.NewLogger(), gin.Recovery())
@@ -37,6 +42,15 @@ func main() {
 
 	r.POST("/ping", func(c *gin.Context) {
 		c.String(http.StatusOK, "pong")
+	})
+
+	r.POST("/req", func(c *gin.Context) {
+		req := new(Req)
+		if err := c.BindJSON(req); err != nil {
+			c.String(http.StatusBadRequest, "no value")
+			return
+		}
+		c.String(http.StatusOK, fmt.Sprintf("Got value %d", req.Value))
 	})
 
 	if err := r.Run(); err != nil {
